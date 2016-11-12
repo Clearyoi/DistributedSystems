@@ -4,6 +4,7 @@ import threading
 import time
 import errno
 from multiprocessing import Pool, TimeoutError
+import Queue
 
 class ThreadedServer(object):
     def __init__(self, host, port):
@@ -12,34 +13,37 @@ class ThreadedServer(object):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind((self.host, self.port))
-        self.pool = Pool(processes=4) 
+        self.numWorkers = 3
+        self.q = Queue.Queue(maxsize=1)
 
     def listen(self):
+        for i in range(self.numWorkers):
+            threading.Thread(target = self.listenToClient).start()
         self.sock.listen(5)
         while True:
             client, address = self.sock.accept()
             client.settimeout(15)
-            # print "starting thread"
-            # res = self.pool.apply_async(self.listenToClient, (client,address))
-            # print res.get(timeout = 10)
-            threading.Thread(target = self.listenToClient,args = (client,address)).start()
+            self.q.put((client,address),True)
 
-    def listenToClient(self, client, address):
-        print "thread started"
+    def listenToClient(self):
         while True:
-            input = self.recvWithTimeout(client,10)
-            if input.startswith("HELO"):
-                client.sendall(input + "\nIP:37.228.254.66\nPort:8000\nStudentID:13325102\n")
-            elif input == "KILL_SERVICE\n":
-                print "thread ended"
-                client.close()
-                return False
-            elif input == "":
-                print "no data recived thread ended"
-                client.close()
-                return False
-            else:
-                time.sleep(1)
+            client, address = self.q.get()
+            while True:
+                input = self.recvWithTimeout(client,10)
+                if input.startswith("HELO"):
+                    client.sendall(input + "\nIP:37.228.254.66\nPort:8000\nStudentID:13325102\n")
+                elif input == "KILL_SERVICE\n":
+                    print "kill service recieved job ended"
+                    client.close()
+                    self.q.task_done()
+                    break
+                elif input == "":
+                    print "no data recived job ended"
+                    client.close()
+                    self.q.task_done()
+                    break
+                else:
+                    time.sleep(1)
         
         
 
@@ -81,7 +85,5 @@ class ThreadedServer(object):
         return finalData
 
 if __name__ == "__main__":
-    # port_num = sys.argv[1]
-    # print port_num
-    port_num = 8000
-    ThreadedServer('',port_num).listen()
+    port_num = int(sys.argv[1])
+    ThreadedServer('0.0.0.0',port_num).listen()
