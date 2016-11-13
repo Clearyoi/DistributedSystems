@@ -10,6 +10,7 @@ class ThreadedServer(object):
     def __init__(self, host, port):
         self.host = host
         self.port = port
+        self.ip = "37.228.254.66"
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind((self.host, self.port))
@@ -31,7 +32,7 @@ class ThreadedServer(object):
             while True:
                 input = self.recvWithTimeout(client,10)
                 if input.startswith("HELO"):
-                    client.sendall(input + "\nIP:37.228.254.66\nPort:8000\nStudentID:13325102\n")
+                    client.sendall(input + "\nIP:"+self.ip+"\nPort:"+str(self.port)+"\nStudentID:13325102\n")
                 elif input == "KILL_SERVICE\n":
                     print "kill service recieved job ended"
                     client.close()
