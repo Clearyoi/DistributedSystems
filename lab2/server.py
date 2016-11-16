@@ -32,7 +32,7 @@ class ThreadedServer(object):
             while True:
                 input = self.recvWithTimeout(client,10)
                 if input.startswith("HELO"):
-                    input = input[:-2]
+                    input = input[:-1]
                     client.sendall(input + "\nIP:"+self.ip+"\nPort:"+str(self.port)+"\nStudentID:13325102\n")
                 elif input == "KILL_SERVICE\n":
                     print "kill service recieved job ended"
