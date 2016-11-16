@@ -3,8 +3,8 @@ import sys
 import threading
 import time
 import errno
-from multiprocessing import Pool, TimeoutError
 import Queue
+
 
 class ThreadedServer(object):
     def __init__(self, host, port):
@@ -19,18 +19,20 @@ class ThreadedServer(object):
 
     def listen(self):
         for i in range(self.numWorkers):
-            threading.Thread(target = self.listenToClient).start()
+            thread = threading.Thread(target=self.listenToClient)
+            thread.setDaemon(True)
+            thread.start()
         self.sock.listen(5)
         while True:
             client, address = self.sock.accept()
             client.settimeout(15)
-            self.q.put((client,address),True)
+            self.q.put((client, address), True)
 
     def listenToClient(self):
         while True:
             client, address = self.q.get()
             while True:
-                input = self.recvWithTimeout(client,10)
+                input = self.recvWithTimeout(client, 10)
                 if input.startswith("HELO"):
                     input = input[:-1]
                     client.sendall(input + "\nIP:"+self.ip+"\nPort:"+str(self.port)+"\nStudentID:13325102\n")
@@ -46,19 +48,16 @@ class ThreadedServer(object):
                     break
                 else:
                     time.sleep(1)
-        
-        
 
     def recvWithTimeout(self, client, timeout):
         totalData = []
         client.setblocking(False)
         begin = time.time()
         while True:
-            #if you got some data, then break after timeout
+            # if you got some data, then break after timeout
             if totalData and time.time()-begin > timeout:
                 break
-         
-            #if you got no data at all, wait a little longer, twice the timeout
+            # if you got no data at all, wait a little longer, twice the timeout
             elif time.time()-begin > timeout*2:
                 break
 
@@ -83,9 +82,9 @@ class ThreadedServer(object):
                 print "closing connection"
                 client.close()
                 return ""
-        finalData =  "".join(totalData)
+        finalData = "".join(totalData)
         return finalData
 
 if __name__ == "__main__":
     port_num = int(sys.argv[1])
-    ThreadedServer('0.0.0.0',port_num).listen()
+    ThreadedServer('0.0.0.0', port_num).listen()
