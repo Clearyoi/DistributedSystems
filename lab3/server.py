@@ -150,7 +150,7 @@ class ThreadedServer(object):
         if room is not None:
             client.sendall("LEFT_CHATROOM:" + ref + "\nJOIN_ID:" + joinId)
             for m in room.members:
-                m.socket.sendall(clientName + " has left the room")
+                m.socket.sendall("CLIENT_NAME:" + clientName + "\nACTION:has left the room")
         # else:
         #     serverError()
 
@@ -192,7 +192,7 @@ class ThreadedServer(object):
         client.sendall("JOINED_CHATROOM:"+roomName+"\nSERVER_IP:"+self.ip+"\nPORT:"+str(self.port) +
                        "\nROOM_REF:" + str(ref) + "\nJOIN_ID:" + str(joinId) + "\n\n")
         for m in room.members:
-            m.socket.sendall(clientName + " has joined the room")
+            m.socket.sendall("CLIENT_NAME:" + clientName + "\nACTION:has joined the room")
 
     def serverError(self, errornum, client):
         if errornum == 1:
