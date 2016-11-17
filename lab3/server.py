@@ -198,7 +198,7 @@ class ThreadedServer(object):
         client.sendall("JOINED_CHATROOM:"+roomName+"\nSERVER_IP:"+self.ip+"\nPORT:"+str(self.port) +
                        "\nROOM_REF:" + str(ref) + "\nJOIN_ID:" + str(joinId) + "\n\n")
         for m in room.members:
-            m.socket.sendall("CHAT:" + str(ref) + "CLIENT_NAME:" + clientName +
+            m.socket.sendall("CHAT:" + str(ref) + "\nCLIENT_NAME:" + clientName +
                              "\nMESSAGE:has joined the room\n\n")
 
     def serverError(self, errornum, client):
