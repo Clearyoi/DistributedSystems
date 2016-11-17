@@ -89,6 +89,7 @@ class ThreadedServer(object):
             while True:
                 inputMessage = self.recvWithTimeout(client, 10)
                 if inputMessage.startswith("HELO"):
+                    print "HELO message received"
                     inputMessage = inputMessage[:-1]
                     client.sendall(inputMessage + "\nIP:"+self.ip +
                                    "\nPort:"+str(self.port)+"\nStudentID:13325102\n")
