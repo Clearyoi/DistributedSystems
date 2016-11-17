@@ -184,9 +184,9 @@ class ThreadedServer(object):
 
     def serverError(self, errornum, client):
         if errornum == 1:
-            client.sendall("ERROR_CODE:1\nERROR_DESCRIPTION:Invalid message received")
+            client.sendall("ERROR_CODE:1\nERROR_DESCRIPTION:Invalid message received\n\n")
         else:
-            client.sendall("ERROR_CODE:0\nERROR_DESCRIPTION:Unknown error")
+            client.sendall("ERROR_CODE:0\nERROR_DESCRIPTION:Unknown error\n\n")
 
     def recvWithTimeout(self, client, timeout):
         totalData = []
@@ -215,12 +215,12 @@ class ThreadedServer(object):
                 else:
                     print sys.exc_info()[0]
                     print e
-                    print "closing connection1"
+                    print "closing connection"
                     client.close()
                     return ""
             except:
                 print sys.exc_info()[0]
-                print "closing connection2"
+                print "closing connection"
                 client.close()
                 return ""
         finalData = "".join(totalData)
