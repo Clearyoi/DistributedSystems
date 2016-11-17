@@ -92,7 +92,7 @@ class ThreadedServer(object):
                     print "HELO message received"
                     inputMessage = inputMessage[:-1]
                     client.sendall(inputMessage + "\nIP:"+self.ip +
-                                   "\nPort:"+str(self.port)+"\nStudentID:13325102\n")
+                                   "\nPort:"+str(self.port)+"\nStudentID:13325102\n\n")
                 elif inputMessage == "KILL_SERVICE\n":
                     print "kill service recieved job ended"
                     client.close()
