@@ -214,12 +214,13 @@ class ThreadedServer(object):
                     continue
                 else:
                     print sys.exc_info()[0]
-                    print "closing connection"
+                    print e
+                    print "closing connection1"
                     client.close()
                     return ""
             except:
                 print sys.exc_info()[0]
-                print "closing connection"
+                print "closing connection2"
                 client.close()
                 return ""
         finalData = "".join(totalData)
