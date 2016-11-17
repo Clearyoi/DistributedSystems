@@ -108,7 +108,7 @@ class ThreadedServer(object):
                     self.chat(inputMessage, client)
                 else:
                     print inputMessage
-                    self.serverError(1, client)
+                    # self.serverError(1, client)
                     time.sleep(1)
 
     def chat(self, inputMessage, client):
