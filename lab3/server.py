@@ -108,6 +108,7 @@ class ThreadedServer(object):
                     self.chat(inputMessage, client)
                 else:
                     print inputMessage
+                    serverError(1, client)
                     time.sleep(1)
 
     def chat(self, inputMessage, client):
@@ -180,6 +181,12 @@ class ThreadedServer(object):
                 print "room created"
         client.sendall("JOINED_CHATROOM:"+roomName+"\nSERVER_IP:"+self.ip+"\nPORT:"+str(self.port) +
                        "\nROOM_REF:" + str(ref) + "\nJOIN_ID:" + str(joinId))
+
+    def serverError(self, errornum, client):
+        if errornum == 1:
+            client.sendall("ERROR_CODE:1\nERROR_DESCRIPTION:Invalid message received")
+        else:
+            client.sendall("ERROR_CODE:0\nERROR_DESCRIPTION:Unknown error")
 
     def recvWithTimeout(self, client, timeout):
         totalData = []
