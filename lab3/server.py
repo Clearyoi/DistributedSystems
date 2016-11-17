@@ -85,6 +85,7 @@ class ThreadedServer(object):
     def listenToClient(self):
         while True:
             client, address = self.q.get()
+            print "Connected"
             while True:
                 inputMessage = self.recvWithTimeout(client, 10)
                 if inputMessage.startswith("HELO"):
@@ -105,11 +106,6 @@ class ThreadedServer(object):
                 elif inputMessage.startswith("CHAT:"):
                     print "chat message received"
                     self.chat(inputMessage, client)
-                elif inputMessage == "":
-                    print "no data recived job ended"
-                    client.close()
-                    self.q.task_done()
-                    break
                 else:
                     print inputMessage
                     time.sleep(1)
