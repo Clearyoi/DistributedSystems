@@ -148,12 +148,12 @@ class ThreadedServer(object):
 
     def leave(self, inputMessage, client):
         message = inputMessage.split("\n")
-        ref = message[0][15:]
-        joinId = message[1][8:]
-        name = message[2][12:]
-        # print "ref -" + ref
-        # print "id -" + joinId
-        # print "name -" + name
+        ref = message[0][16:]
+        joinId = message[1][9:]
+        name = message[2][13:]
+        print "ref -" + ref
+        print "id -" + joinId
+        print "name -" + name
         room = None
         for x in self.rooms:
             if str(x.getRef()) == ref:
