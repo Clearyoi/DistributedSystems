@@ -7,9 +7,10 @@ import Queue
 
 
 class Member(object):
-    def __init__(self, name, joinId):
+    def __init__(self, name, joinId, socket):
         self.name = name
         self.joinId = joinId
+        self.socket = socket
 
     def getName(self):
         return self.name
@@ -19,6 +20,9 @@ class Member(object):
 
     def __cmp__(self, other):
         return self.joinId == other.joinId
+
+    def __str__(self):
+        return str(self.joinId)
 
 
 class Room(object):
@@ -98,6 +102,9 @@ class ThreadedServer(object):
                 elif inputMessage.startswith("LEAVE_CHATROOM:"):
                     print "Leave message recieved"
                     self.leave(inputMessage, client)
+                elif inputMessage.startswith("CHAT:"):
+                    print "chat message received"
+                    self.chat(inputMessage, client)
                 elif inputMessage == "":
                     print "no data recived job ended"
                     client.close()
@@ -106,6 +113,27 @@ class ThreadedServer(object):
                 else:
                     print inputMessage
                     time.sleep(1)
+
+    def chat(self, inputMessage, client):
+        message = inputMessage.split("\n", 3)
+        ref = message[0][6:]
+        joinId = message[1][9:]
+        name = message[2][13:]
+        sendableMessage = message[3][9:]
+        print "name -" + name
+        print "ref -" + ref
+        print "join id -" + joinId
+        print "message -" + sendableMessage
+        for x in self.rooms:
+            if str(x.getRef()) == ref:
+                print "room found"
+                if Member(name, joinId, client) in x.members:
+                    for m in x.members:
+                        print "message sent"
+                        m.socket.sendall("CHAT: " + ref + "\nCLIENT_NAME: " +
+                                         name + "\nMESSAGE: " + sendableMessage)
+                # else:
+                #     serverError()
 
     def leave(self, inputMessage, client):
         message = inputMessage.split("\n")
@@ -117,7 +145,7 @@ class ThreadedServer(object):
         # print "name -" + name
         for x in self.rooms:
             if str(x.getRef()) == ref:
-                x.removeMember(Member(name, joinId))
+                x.removeMember(Member(name, joinId, client))
                 break
         client.sendall("LEFT_CHATROOM: " + ref + "\nJOIN_ID: " + joinId)
 
@@ -133,7 +161,7 @@ class ThreadedServer(object):
             self.joinIdSeed += 1
         finally:
             self.joinIdSeedLock.release()
-        member = Member(clientName, joinId)
+        member = Member(clientName, joinId, client)
         added = False
         ref = 0
         for x in self.rooms:
