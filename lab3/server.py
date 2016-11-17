@@ -17,6 +17,9 @@ class Member(object):
     def getJoinId(self):
         return self.joinId
 
+    def __cmp__(self, other):
+        return self.joinId == other.joinId
+
 
 class Room(object):
     def __init__(self, name, member, ref):
@@ -25,17 +28,27 @@ class Room(object):
         self.ref = ref
 
     def addMember(self, member):
-        self.members.append(member)
+        if member not in self.members:
+            self.members.append(member)
+            print "member added"
+        else:
+            print "member already"
 
     def removeMember(self, member):
         if member in self.members:
             self.members.remove(member)
+            print "member removed"
+        else:
+            print "not a member"
 
     def getName(self):
         return self.name
 
     def getRef(self):
         return self.ref
+
+    def __cmp__(self, other):
+        return self.ref == other.ref
 
 
 class ThreadedServer(object):
@@ -72,7 +85,8 @@ class ThreadedServer(object):
                 inputMessage = self.recvWithTimeout(client, 10)
                 if inputMessage.startswith("HELO"):
                     inputMessage = inputMessage[:-1]
-                    client.sendall(inputMessage + "\nIP:"+self.ip+"\nPort:"+str(self.port)+"\nStudentID:13325102\n")
+                    client.sendall(inputMessage + "\nIP:"+self.ip +
+                                   "\nPort:"+str(self.port)+"\nStudentID:13325102\n")
                 elif inputMessage == "KILL_SERVICE\n":
                     print "kill service recieved job ended"
                     client.close()
@@ -92,6 +106,20 @@ class ThreadedServer(object):
                 else:
                     print inputMessage
                     time.sleep(1)
+
+    def leave(self, inputMessage, client):
+        message = inputMessage.split("\n")
+        ref = message[0][16:]
+        joinId = message[1][9:]
+        name = message[2][13:]
+        # print "ref -" + ref
+        # print "id -" + joinId
+        # print "name -" + name
+        for x in self.rooms:
+            if str(x.getRef()) == ref:
+                x.removeMember(Member(name, joinId))
+                break
+        client.sendall("LEFT_CHATROOM: " + ref + "\nJOIN_ID: " + joinId)
 
     def join(self, inputMessage, client):
         message = inputMessage.split("\n")
@@ -125,7 +153,9 @@ class ThreadedServer(object):
                 self.roomRefSeedLock.release()
             if ref:
                 self.rooms.append(Room(roomName, member, ref))
-        client.sendall("JOINED_CHATROOM: "+roomName+"\nSERVER_IP: "+self.ip+"\nPORT: "+str(self.port) + "\nROOM_REF: " + str(ref) + "\nJOIN_ID: " + str(joinId))
+                print "room created"
+        client.sendall("JOINED_CHATROOM: "+roomName+"\nSERVER_IP: "+self.ip+"\nPORT: "+str(self.port) +
+                       "\nROOM_REF: " + str(ref) + "\nJOIN_ID: " + str(joinId))
 
     def recvWithTimeout(self, client, timeout):
         totalData = []
