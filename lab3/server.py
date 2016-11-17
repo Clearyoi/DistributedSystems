@@ -6,6 +6,10 @@ import errno
 import Queue
 
 
+messageStart = "########## message start ##########\n"
+messageEnd = "\n########## message end ##########"
+
+
 class Member(object):
     def __init__(self, name, joinId, socket):
         self.name = name
@@ -88,6 +92,7 @@ class ThreadedServer(object):
             print "Connected"
             while True:
                 inputMessage = self.recvWithTimeout(client, 10)
+                print messageStart + inputMessage + messageEnd
                 if inputMessage.startswith("HELO"):
                     print "HELO message received"
                     inputMessage = inputMessage[:-1]
