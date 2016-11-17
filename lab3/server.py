@@ -97,6 +97,7 @@ class ThreadedServer(object):
                     print "kill service recieved job ended"
                     client.close()
                     self.q.task_done()
+                    sys.exit()
                     break
                 elif inputMessage.startswith("JOIN_CHATROOM"):
                     print "Join message received"
