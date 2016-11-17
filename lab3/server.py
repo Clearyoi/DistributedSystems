@@ -70,7 +70,6 @@ class ThreadedServer(object):
         self.joinIdSeed = 1
         self.roomRefSeedLock = threading.Lock()
         self.roomRefSeed = 1
-        self.isActive = True
 
     def listen(self):
         for i in range(self.numWorkers):
@@ -82,8 +81,6 @@ class ThreadedServer(object):
             client, address = self.sock.accept()
             client.settimeout(15)
             self.q.put((client, address), True)
-            if not self.isActive:
-                sys.exit()
 
     def listenToClient(self):
         while True:
@@ -97,8 +94,9 @@ class ThreadedServer(object):
                     client.sendall(inputMessage + "\nIP:"+self.ip +
                                    "\nPort:"+str(self.port)+"\nStudentID:13325102\n")
                 elif inputMessage == "KILL_SERVICE\n":
-                    print "kill service recieved closing server"
-                    self.isActive = False
+                    print "kill service recieved job ended"
+                    client.close()
+                    self.q.task_done()
                     break
                 elif inputMessage.startswith("JOIN_CHATROOM"):
                     print "Join message received"
@@ -143,11 +141,18 @@ class ThreadedServer(object):
         # print "ref -" + ref
         # print "id -" + joinId
         # print "name -" + name
+        room = None
         for x in self.rooms:
             if str(x.getRef()) == ref:
                 x.removeMember(Member(name, joinId, client))
+                room = x
                 break
-        client.sendall("LEFT_CHATROOM:" + ref + "\nJOIN_ID:" + joinId)
+        if room is not None:
+            client.sendall("LEFT_CHATROOM:" + ref + "\nJOIN_ID:" + joinId)
+            for m in room.members:
+                m.socket.sendall(clientName + " has left the room")
+        # else:
+        #     serverError()
 
     def join(self, inputMessage, client):
         message = inputMessage.split("\n")
@@ -162,16 +167,17 @@ class ThreadedServer(object):
         finally:
             self.joinIdSeedLock.release()
         member = Member(clientName, joinId, client)
-        added = False
         ref = 0
+        room = None
         for x in self.rooms:
             if x.getName() == roomName:
                 print "room found"
                 x.addMember(member)
                 added = True
                 ref = x.getRef()
+                room = x
                 break
-        if not added:
+        if room is None:
             print "room not found"
             self.roomRefSeedLock.acquire()
             try:
@@ -180,10 +186,13 @@ class ThreadedServer(object):
             finally:
                 self.roomRefSeedLock.release()
             if ref:
-                self.rooms.append(Room(roomName, member, ref))
+                room = Room(roomName, member, ref)
+                self.rooms.append(room)
                 print "room created"
         client.sendall("JOINED_CHATROOM:"+roomName+"\nSERVER_IP:"+self.ip+"\nPORT:"+str(self.port) +
                        "\nROOM_REF:" + str(ref) + "\nJOIN_ID:" + str(joinId) + "\n\n")
+        for m in room.members:
+            m.socket.sendall(clientName + " has joined the room")
 
     def serverError(self, errornum, client):
         if errornum == 1:
