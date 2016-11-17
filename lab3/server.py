@@ -70,6 +70,7 @@ class ThreadedServer(object):
         self.joinIdSeed = 1
         self.roomRefSeedLock = threading.Lock()
         self.roomRefSeed = 1
+        self.isActive = True
 
     def listen(self):
         for i in range(self.numWorkers):
@@ -81,6 +82,8 @@ class ThreadedServer(object):
             client, address = self.sock.accept()
             client.settimeout(15)
             self.q.put((client, address), True)
+            if not self.isActive:
+                sys.exit()
 
     def listenToClient(self):
         while True:
@@ -94,10 +97,8 @@ class ThreadedServer(object):
                     client.sendall(inputMessage + "\nIP:"+self.ip +
                                    "\nPort:"+str(self.port)+"\nStudentID:13325102\n")
                 elif inputMessage == "KILL_SERVICE\n":
-                    print "kill service recieved job ended"
-                    client.close()
-                    self.q.task_done()
-                    sys.exit()
+                    print "kill service recieved closing server"
+                    self.isActive = False
                     break
                 elif inputMessage.startswith("JOIN_CHATROOM"):
                     print "Join message received"
