@@ -216,6 +216,7 @@ class ThreadedServer(object):
             messageToBeSent = "CHAT:" + str(ref) + "\nCLIENT_NAME:" + clientName +\
                 "\nMESSAGE:has joined the room\n\n"
             print sentMessageStart + messageToBeSent + messageEnd
+            print "message sent to " + m.name
             m.socket.sendall(messageToBeSent)
 
     def serverError(self, errornum, client):
