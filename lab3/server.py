@@ -181,7 +181,7 @@ class ThreadedServer(object):
                 self.rooms.append(Room(roomName, member, ref))
                 print "room created"
         client.sendall("JOINED_CHATROOM:"+roomName+"\nSERVER_IP:"+self.ip+"\nPORT:"+str(self.port) +
-                       "\nROOM_REF:" + str(ref) + "\nJOIN_ID:" + str(joinId) + "\n\n")
+                       "\nROOM_REF:" + str(ref) + "\nJOIN_ID:" + str(joinId) + "\n")
 
     def serverError(self, errornum, client):
         if errornum == 1:
