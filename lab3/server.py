@@ -63,7 +63,7 @@ class ThreadedServer(object):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind((self.host, self.port))
-        self.numWorkers = 3
+        self.numWorkers = 5
         self.q = Queue.Queue(maxsize=1)
         self.rooms = []
         self.joinIdSeedLock = threading.Lock()
@@ -92,7 +92,7 @@ class ThreadedServer(object):
                     print "HELO message received"
                     inputMessage = inputMessage[:-1]
                     client.sendall(inputMessage + "\nIP:"+self.ip +
-                                   "\nPort:"+str(self.port)+"\nStudentID:13325102\n\n\n")
+                                   "\nPort:"+str(self.port)+"\nStudentID:13325102\n")
                 elif inputMessage == "KILL_SERVICE\n":
                     print "kill service recieved job ended"
                     client.close()
@@ -181,7 +181,7 @@ class ThreadedServer(object):
                 self.rooms.append(Room(roomName, member, ref))
                 print "room created"
         client.sendall("JOINED_CHATROOM:"+roomName+"\nSERVER_IP:"+self.ip+"\nPORT:"+str(self.port) +
-                       "\nROOM_REF:" + str(ref) + "\nJOIN_ID:" + str(joinId))
+                       "\nROOM_REF:" + str(ref) + "\nJOIN_ID:" + str(joinId) + "\n\n")
 
     def serverError(self, errornum, client):
         if errornum == 1:
