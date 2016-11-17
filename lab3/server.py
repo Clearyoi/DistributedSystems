@@ -209,7 +209,7 @@ class ThreadedServer(object):
         print sentMessageStart + messageToBeSent + messageEnd
         client.sendall(messageToBeSent)
         for m in room.members:
-            messageToBeSent = "CHAT: " + str(ref) + "\nCLIENT_NAME:" + clientName +\
+            messageToBeSent = "CHAT:" + str(ref) + "\nCLIENT_NAME:" + clientName +\
                 "\nMESSAGE:has joined the room\n\n"
             print sentMessageStart + messageToBeSent + messageEnd
             m.socket.sendall(messageToBeSent)
