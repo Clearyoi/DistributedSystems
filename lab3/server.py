@@ -224,6 +224,9 @@ class ThreadedServer(object):
                 if err == errno.EAGAIN or err == errno.EWOULDBLOCK:
                     time.sleep(1)
                     continue
+                elif err == 104:
+                    "Client closed connection"
+                    return ""
                 else:
                     print sys.exc_info()[0]
                     print e
