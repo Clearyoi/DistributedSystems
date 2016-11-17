@@ -6,6 +6,38 @@ import errno
 import Queue
 
 
+class Member(object):
+    def __init__(self, name, joinId):
+        self.name = name
+        self.joinId = joinId
+
+    def getName(self):
+        return self.name
+
+    def getJoinId(self):
+        return self.joinId
+
+
+class Room(object):
+    def __init__(self, name, member, ref):
+        self.name = name
+        self.members = [member]
+        self.ref = ref
+
+    def addMember(self, member):
+        self.members.append(member)
+
+    def removeMember(self, member):
+        if member in self.members:
+            self.members.remove(member)
+
+    def getName(self):
+        return self.name
+
+    def getRef(self):
+        return self.ref
+
+
 class ThreadedServer(object):
     def __init__(self, host, port):
         self.host = host
@@ -16,6 +48,11 @@ class ThreadedServer(object):
         self.sock.bind((self.host, self.port))
         self.numWorkers = 3
         self.q = Queue.Queue(maxsize=1)
+        self.rooms = []
+        self.joinIdSeedLock = threading.Lock()
+        self.joinIdSeed = 1
+        self.roomRefSeedLock = threading.Lock()
+        self.roomRefSeed = 1
 
     def listen(self):
         for i in range(self.numWorkers):
@@ -32,25 +69,63 @@ class ThreadedServer(object):
         while True:
             client, address = self.q.get()
             while True:
-                input = self.recvWithTimeout(client, 10)
-                if input.startswith("HELO"):
-                    input = input[:-1]
-                    client.sendall(input + "\nIP:"+self.ip+"\nPort:"+str(self.port)+"\nStudentID:13325102\n")
-                elif input == "KILL_SERVICE\n":
+                inputMessage = self.recvWithTimeout(client, 10)
+                if inputMessage.startswith("HELO"):
+                    inputMessage = inputMessage[:-1]
+                    client.sendall(inputMessage + "\nIP:"+self.ip+"\nPort:"+str(self.port)+"\nStudentID:13325102\n")
+                elif inputMessage == "KILL_SERVICE\n":
                     print "kill service recieved job ended"
                     client.close()
                     self.q.task_done()
                     break
-                elif input == input.startswith("JOIN_CHATROOM:"):
-                    message = split(input, "\n")
-                    print message[0]
-                elif input == "":
+                elif inputMessage.startswith("JOIN_CHATROOM"):
+                    print "Join message received"
+                    self.join(inputMessage, client)
+                elif inputMessage.startswith("LEAVE_CHATROOM:"):
+                    print "Leave message recieved"
+                    self.leave(inputMessage, client)
+                elif inputMessage == "":
                     print "no data recived job ended"
                     client.close()
                     self.q.task_done()
                     break
                 else:
+                    print inputMessage
                     time.sleep(1)
+
+    def join(self, inputMessage, client):
+        message = inputMessage.split("\n")
+        roomName = message[0][15:]
+        clientName = message[3][13:]
+        print "Room Name -" + roomName
+        print "Client Name -" + clientName
+        self.joinIdSeedLock.acquire()
+        try:
+            joinId = self.joinIdSeed
+            self.joinIdSeed += 1
+        finally:
+            self.joinIdSeedLock.release()
+        member = Member(clientName, joinId)
+        added = False
+        ref = 0
+        for x in self.rooms:
+            if x.getName() == roomName:
+                print "room found"
+                x.addMember(member)
+                added = True
+                ref = x.getRef()
+                break
+        if not added:
+            print "room not found"
+            self.roomRefSeedLock.acquire()
+            try:
+                ref = self.roomRefSeed
+                self.roomRefSeed += 1
+            finally:
+                self.roomRefSeedLock.release()
+            if ref:
+                self.rooms.append(Room(roomName, member, ref))
+        client.sendall("JOINED_CHATROOM: "+roomName+"\nSERVER_IP: "+self.ip+"\nPORT: "+str(self.port) + "\nROOM_REF: " + str(ref) + "\nJOIN_ID: " + str(joinId))
 
     def recvWithTimeout(self, client, timeout):
         totalData = []
