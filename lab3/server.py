@@ -6,7 +6,8 @@ import errno
 import Queue
 
 
-messageStart = "########## message start ##########\n"
+receivedMessageStart = "########## received message start ##########\n"
+sentMessageStart = "########## sent message start ##########\n"
 messageEnd = "\n########## message end ##########"
 
 
@@ -92,12 +93,14 @@ class ThreadedServer(object):
             print "Connected"
             while True:
                 inputMessage = self.recvWithTimeout(client, 10)
-                print messageStart + inputMessage + messageEnd
+                print receivedMessageStart + inputMessage + messageEnd
                 if inputMessage.startswith("HELO"):
                     print "HELO message received"
                     inputMessage = inputMessage[:-1]
-                    client.sendall(inputMessage + "\nIP:"+self.ip +
-                                   "\nPort:"+str(self.port)+"\nStudentID:13325102\n")
+                    messageToBeSent = inputMessage + "\nIP:"+self.ip +\
+                        "\nPort:"+str(self.port)+"\nStudentID:13325102\n"
+                    print sentMessageStart + messageToBeSent + messageEnd
+                    client.sendall(messageToBeSent)
                 elif inputMessage == "KILL_SERVICE\n":
                     print "kill service recieved job ended"
                     client.close()
@@ -133,8 +136,10 @@ class ThreadedServer(object):
                 if Member(name, joinId, client) in x.members:
                     for m in x.members:
                         print "message sent"
-                        m.socket.sendall("CHAT:" + ref + "\nCLIENT_NAME:" +
-                                         name + "\nMESSAGE:" + sendableMessage)
+                        messageToBeSent = "CHAT:" + ref + "\nCLIENT_NAME:" +\
+                            name + "\nMESSAGE:" + sendableMessage
+                        print sentMessageStart + messageToBeSent + messageEnd
+                        m.socket.sendall(messageToBeSent)
                 # else:
                 #     serverError()
 
@@ -153,10 +158,14 @@ class ThreadedServer(object):
                 room = x
                 break
         if room is not None:
-            client.sendall("LEFT_CHATROOM:" + str(ref) + "\nJOIN_ID:" + joinId)
+            messageToBeSent = "LEFT_CHATROOM:" + str(ref) + "\nJOIN_ID:" + joinId
+            print sentMessageStart + messageToBeSent + messageEnd
+            client.sendall(messageToBeSent)
             for m in room.members:
-                m.socket.sendall("CHAT:" + str(ref) + "CLIENT_NAME:" + clientName +
-                                 "\nMESSAGE:has left the room\n\n")
+                messageToBeSent = "CHAT:" + str(ref) + "CLIENT_NAME:" + clientName +\
+                    "\nMESSAGE:has left the room\n\n"
+                print sentMessageStart + messageToBeSent + messageEnd
+                m.socket.sendall(messageToBeSent)
         # else:
         #     serverError()
 
@@ -195,14 +204,20 @@ class ThreadedServer(object):
                 room = Room(roomName, member, ref)
                 self.rooms.append(room)
                 print "room created"
-        client.sendall("JOINED_CHATROOM:"+roomName+"\nSERVER_IP:"+self.ip+"\nPORT:"+str(self.port) +
-                       "\nROOM_REF:" + str(ref) + "\nJOIN_ID:" + str(joinId) + "\n\n")
+        messageToBeSent = "JOINED_CHATROOM:"+roomName+"\nSERVER_IP:"+self.ip+"\nPORT:"+str(self.port) +\
+            "\nROOM_REF:" + str(ref) + "\nJOIN_ID:" + str(joinId) + "\n\n"
+        print sentMessageStart + messageToBeSent + messageEnd
+        client.sendall(messageToBeSent)
         for m in room.members:
-            m.socket.sendall("CHAT:" + str(ref) + "\nCLIENT_NAME:" + clientName +
-                             "\nMESSAGE:has joined the room\n\n")
+            messageToBeSent = "CHAT:" + str(ref) + "\nCLIENT_NAME:" + clientName +\
+                "\nMESSAGE:has joined the room\n\n"
+            print sentMessageStart + messageToBeSent + messageEnd
+            m.socket.sendall(messageToBeSent)
 
     def serverError(self, errornum, client):
+        print "Some error occured"
         if errornum == 1:
+            print
             client.sendall("ERROR_CODE:1\nERROR_DESCRIPTION:Invalid message received\n\n")
         else:
             client.sendall("ERROR_CODE:0\nERROR_DESCRIPTION:Unknown error\n\n")
