@@ -209,7 +209,7 @@ class ThreadedServer(object):
                 self.rooms.append(room)
                 print "room created"
         messageToBeSent = "JOINED_CHATROOM:"+roomName+"\nSERVER_IP:"+self.ip+"\nPORT:"+str(self.port) +\
-            "\nROOM_REF:" + str(ref) + "\nJOIN_ID:" + str(joinId) + "\n\n"
+            "\nROOM_REF:" + str(ref) + "\nJOIN_ID:" + str(joinId) + "\n"
         print sentMessageStart + messageToBeSent + messageEnd
         client.sendall(messageToBeSent)
         for m in room.members:
