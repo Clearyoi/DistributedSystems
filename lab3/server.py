@@ -33,19 +33,22 @@ class Member(object):
 class Room(object):
     def __init__(self, name, member, ref):
         self.name = name
-        self.members = [member]
+        self.members = []
+        self.members.append(member)
         self.ref = ref
 
-    def addMember(self, member):
-        if member not in self.members:
-            self.members.append(member)
-            print "member added"
-        else:
-            print "member already"
+    def addMember(self, memberToAdd):
+        # if memberToAdd not in self.members:
+        self.members.append(memberToAdd)
+        print "member added"
+    # else:
+    #     print "member already"
+        for m in self.members:
+            print m
 
-    def removeMember(self, member):
-        if member in self.members:
-            self.members.remove(member)
+    def removeMember(self, memberToRemove):
+        if memberToRemove in self.members:
+            self.members.remove(memberToRemove)
             print "member removed"
         else:
             print "not a member"
@@ -162,7 +165,7 @@ class ThreadedServer(object):
             print sentMessageStart + messageToBeSent + messageEnd
             client.sendall(messageToBeSent)
             for m in room.members:
-                messageToBeSent = "CHAT:" + str(ref) + "CLIENT_NAME:" + clientName +\
+                messageToBeSent = "CHAT:" + str(ref) + "CLIENT_NAME:" + name +\
                     "\nMESSAGE:has left the room\n\n"
                 print sentMessageStart + messageToBeSent + messageEnd
                 m.socket.sendall(messageToBeSent)
@@ -181,6 +184,7 @@ class ThreadedServer(object):
             self.joinIdSeed += 1
         finally:
             self.joinIdSeedLock.release()
+        print "member joining with id -" + str(joinId)
         member = Member(clientName, joinId, client)
         ref = 0
         room = None
