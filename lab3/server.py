@@ -161,7 +161,7 @@ class ThreadedServer(object):
                 room = x
                 break
         if room is not None:
-            messageToBeSent = "LEFT_CHATROOM:" + str(ref) + "\nJOIN_ID:" + joinId + "\n\n"
+            messageToBeSent = "LEFT_CHATROOM:" + str(ref) + "\nJOIN_ID:" + joinId + "\n"
             print sentMessageStart + messageToBeSent + messageEnd
             client.sendall(messageToBeSent)
             messageToBeSent = "CHAT:" + str(ref) + "CLIENT_NAME:" + name +\
