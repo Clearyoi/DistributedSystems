@@ -165,7 +165,7 @@ class ThreadedServer(object):
             print sentMessageStart + messageToBeSent + messageEnd
             client.sendall(messageToBeSent)
             messageToBeSent = "CHAT:" + str(ref) + "CLIENT_NAME:" + name +\
-                "\nMESSAGE" + clientName + " has left this chatroom.\n\n"
+                "\nMESSAGE" + name + " has left this chatroom.\n\n"
             client.sendall(messageToBeSent)
             for m in room.members:
                 print sentMessageStart + messageToBeSent + messageEnd
