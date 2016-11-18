@@ -223,7 +223,7 @@ class ThreadedServer(object):
         print "Some error occured"
         if errornum == 1:
             print
-            client.sendall("ERROR_CODE:1\nERROR_DESCRIPTION:Invalid message received\n\n")
+            client.sendall("ERROR_CODE:1\nERROR_DESCRIPTION:Invalid message received\n")
         else:
             client.sendall("ERROR_CODE:0\nERROR_DESCRIPTION:Unknown error\n\n")
 
