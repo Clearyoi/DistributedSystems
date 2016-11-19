@@ -157,15 +157,15 @@ class ThreadedServer(object):
         room = None
         for x in self.rooms:
             if str(x.getRef()) == ref:
+                messageToBeSent = "LEFT_CHATROOM:" + str(ref) + "\nJOIN_ID:" + joinId + "\n"
+                print sentMessageStart + messageToBeSent + messageEnd
+                client.sendall(messageToBeSent)
                 messageToBeSent = "CHAT:" + str(ref) + "\nCLIENT_NAME:" + name +\
                     "\nMESSAGE:" + name + " has left this chatroom.\n"
                 for m in x.members:
                     print sentMessageStart + messageToBeSent + messageEnd
                     m.socket.sendall(messageToBeSent)
                 x.removeMember(Member(name, joinId, client))
-                messageToBeSent = "LEFT_CHATROOM:" + str(ref) + "\nJOIN_ID:" + joinId + "\n"
-                print sentMessageStart + messageToBeSent + messageEnd
-                client.sendall(messageToBeSent)
                 break
 
         # else:
