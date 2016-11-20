@@ -96,7 +96,8 @@ class ThreadedServer(object):
             print "Connected"
             while True:
                 inputMessage = self.recvWithTimeout(client, 10)
-                print receivedMessageStart + inputMessage + messageEnd
+                if inputMessage:
+                    print receivedMessageStart + inputMessage + messageEnd
                 if inputMessage.startswith("HELO"):
                     print "HELO message received"
                     inputMessage = inputMessage[:-1]
