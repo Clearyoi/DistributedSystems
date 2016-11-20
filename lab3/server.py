@@ -95,7 +95,7 @@ class ThreadedServer(object):
             client, address = self.q.get()
             print "Connected"
             while True:
-                inputMessage = self.recvWithTimeout(client, 10)
+                inputMessage = self.recvWithTimeout(client, 2)
                 if inputMessage:
                     print receivedMessageStart + inputMessage + messageEnd
                 if inputMessage.startswith("HELO"):
