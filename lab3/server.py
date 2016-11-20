@@ -120,7 +120,7 @@ class ThreadedServer(object):
                     print "chat message received"
                     self.chat(inputMessage, client)
                 else:
-                    print inputMessage
+                    # print inputMessage
                     # self.serverError(1, client)
                     time.sleep(1)
 
@@ -162,7 +162,7 @@ class ThreadedServer(object):
                 print sentMessageStart + messageToBeSent + messageEnd
                 client.sendall(messageToBeSent)
                 messageToBeSent = "CHAT:" + str(ref) + "\nCLIENT_NAME:" + name +\
-                    "\nMESSAGE:" + name + " has left this chatroom.\n"
+                    "\nMESSAGE:" + name + " has left this chatroom.\n\n"
                 for m in x.members:
                     print sentMessageStart + messageToBeSent + messageEnd
                     m.socket.sendall(messageToBeSent)
