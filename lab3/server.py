@@ -73,6 +73,7 @@ class ThreadedServer(object):
         self.sock.bind((self.host, self.port))
         self.numWorkers = 5
         self.q = Queue.Queue(maxsize=1)
+        self.roomsLock = threading.Lock()
         self.rooms = []
         self.joinIdSeedLock = threading.Lock()
         self.joinIdSeed = 1
@@ -134,18 +135,22 @@ class ThreadedServer(object):
         print "ref -" + ref
         print "join id -" + joinId
         print "message -" + sendableMessage
-        for x in self.rooms:
-            if str(x.getRef()) == ref:
-                print "room found"
-                if Member(name, joinId, client) in x.members:
-                    for m in x.members:
-                        print "message sent"
-                        messageToBeSent = "CHAT:" + ref + "\nCLIENT_NAME:" +\
-                            name + "\nMESSAGE:" + sendableMessage
-                        print sentMessageStart + messageToBeSent + messageEnd
-                        m.socket.sendall(messageToBeSent)
-                # else:
-                #     serverError()
+        self.roomsLock.acquire()
+        try:
+            for x in self.rooms:
+                if str(x.getRef()) == ref:
+                    print "room found"
+                    if Member(name, joinId, client) in x.members:
+                        for m in x.members:
+                            print "message sent"
+                            messageToBeSent = "CHAT:" + ref + "\nCLIENT_NAME:" +\
+                                name + "\nMESSAGE:" + sendableMessage
+                            print sentMessageStart + messageToBeSent + messageEnd
+                            m.socket.sendall(messageToBeSent)
+                    # else:
+                    #     serverError()
+        finally:
+            self.roomsLock.release()
 
     def leave(self, inputMessage, client):
         message = inputMessage.split("\n")
@@ -156,21 +161,22 @@ class ThreadedServer(object):
         print "id -" + joinId
         print "name -" + name
         room = None
-        for x in self.rooms:
-            if str(x.getRef()) == ref:
-                messageToBeSent = "LEFT_CHATROOM:" + str(ref) + "\nJOIN_ID:" + joinId + "\n"
-                print sentMessageStart + messageToBeSent + messageEnd
-                client.sendall(messageToBeSent)
-                messageToBeSent = "CHAT:" + str(ref) + "\nCLIENT_NAME:" + name +\
-                    "\nMESSAGE:" + name + " has left this chatroom.\n\n"
-                for m in x.members:
+        self.roomsLock.acquire()
+        try:
+            for x in self.rooms:
+                if str(x.getRef()) == ref:
+                    messageToBeSent = "LEFT_CHATROOM:" + str(ref) + "\nJOIN_ID:" + joinId + "\n"
                     print sentMessageStart + messageToBeSent + messageEnd
-                    m.socket.sendall(messageToBeSent)
-                x.removeMember(Member(name, joinId, client))
-                break
-
-        # else:
-        #     serverError()
+                    client.sendall(messageToBeSent)
+                    messageToBeSent = "CHAT:" + str(ref) + "\nCLIENT_NAME:" + name +\
+                        "\nMESSAGE:" + name + " has left this chatroom.\n\n"
+                    for m in x.members:
+                        print sentMessageStart + messageToBeSent + messageEnd
+                        m.socket.sendall(messageToBeSent)
+                    x.removeMember(Member(name, joinId, client))
+                    break
+        finally:
+            self.roomsLock.release()
 
     def join(self, inputMessage, client):
         message = inputMessage.split("\n")
@@ -188,36 +194,40 @@ class ThreadedServer(object):
         member = Member(clientName, joinId, client)
         ref = 0
         room = None
-        for x in self.rooms:
-            if x.getName() == roomName:
-                print "room found"
-                x.addMember(member)
-                added = True
-                ref = x.getRef()
-                room = x
-                break
-        if room is None:
-            print "room not found"
-            self.roomRefSeedLock.acquire()
-            try:
-                ref = self.roomRefSeed
-                self.roomRefSeed += 1
-            finally:
-                self.roomRefSeedLock.release()
-            if ref:
-                room = Room(roomName, member, ref)
-                self.rooms.append(room)
-                print "room created"
-        messageToBeSent = "JOINED_CHATROOM:"+roomName+"\nSERVER_IP:"+self.ip+"\nPORT:"+str(self.port) +\
-            "\nROOM_REF:" + str(ref) + "\nJOIN_ID:" + str(joinId) + "\n"
-        print sentMessageStart + messageToBeSent + messageEnd
-        client.sendall(messageToBeSent)
-        for m in room.members:
-            messageToBeSent = "CHAT:" + str(ref) + "\nCLIENT_NAME:" + clientName +\
-                "\nMESSAGE:" + clientName + " has joined this chatroom.\n\n"
+        self.roomsLock.acquire()
+        try:
+            for x in self.rooms:
+                if x.getName() == roomName:
+                    print "room found"
+                    x.addMember(member)
+                    added = True
+                    ref = x.getRef()
+                    room = x
+                    break
+            if room is None:
+                print "room not found"
+                self.roomRefSeedLock.acquire()
+                try:
+                    ref = self.roomRefSeed
+                    self.roomRefSeed += 1
+                finally:
+                    self.roomRefSeedLock.release()
+                if ref:
+                    room = Room(roomName, member, ref)
+                    self.rooms.append(room)
+                    print "room created"
+            messageToBeSent = "JOINED_CHATROOM:"+roomName+"\nSERVER_IP:"+self.ip+"\nPORT:"+str(self.port) +\
+                "\nROOM_REF:" + str(ref) + "\nJOIN_ID:" + str(joinId) + "\n"
             print sentMessageStart + messageToBeSent + messageEnd
-            print "message sent to " + m.name
-            m.socket.sendall(messageToBeSent)
+            client.sendall(messageToBeSent)
+            for m in room.members:
+                messageToBeSent = "CHAT:" + str(ref) + "\nCLIENT_NAME:" + clientName +\
+                    "\nMESSAGE:" + clientName + " has joined this chatroom.\n\n"
+                print sentMessageStart + messageToBeSent + messageEnd
+                print "message sent to " + m.name
+                m.socket.sendall(messageToBeSent)
+        finally:
+            self.roomsLock.release()
 
     def serverError(self, errornum, client):
         print "Some error occured"
