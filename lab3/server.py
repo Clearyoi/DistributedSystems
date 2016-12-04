@@ -51,14 +51,14 @@ class Room(object):
         print "members before removal:"
         for m in self.members:
                 print m
-        if memberToRemove in self.members:
-            self.members.remove(memberToRemove)
-            print "member removed"
-            print "members after removal:"
-            for m in self.members:
-                print m
-        else:
-            print "not a member"
+        for member in self.members:
+            if member.socket == memberToRemove:
+                self.members.remove(member)
+                print "members after removal:"
+                for m in self.members:
+                    print m
+                return
+        print "Not a member"
 
     def getName(self):
         return self.name
@@ -180,7 +180,7 @@ class ThreadedServer(object):
                     for m in x.members:
                         print sentMessageStart + messageToBeSent + messageEnd
                         m.socket.sendall(messageToBeSent)
-                    x.removeMember(Member(name, joinId, client))
+                    x.removeMember(client)
                     break
         finally:
             self.roomsLock.release()
