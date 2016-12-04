@@ -139,7 +139,7 @@ class ThreadedServer(object):
                     time.sleep(1)
 
     def chat(self, inputMessage, client):
-        message = inputMessage.split("\n", 3)
+        message = inputMessage.split("\n")
         ref = message[0][6:]
         joinId = message[1][9:]
         name = message[2][13:]
