@@ -151,6 +151,7 @@ class ThreadedServer(object):
         self.roomsLock.acquire()
         try:
             for x in self.rooms:
+                print "ref: " + str(x.getRef())
                 if str(x.getRef()) == ref:
                     print "room found"
                     if Member(name, joinId, client) in x.members:
