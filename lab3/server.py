@@ -27,7 +27,7 @@ class Member(object):
         return self.joinId == other.joinId
 
     def __str__(self):
-        return str(self.joinId)
+        return str(self.joinId) + self.name
 
 
 class Room(object):
@@ -48,10 +48,13 @@ class Room(object):
             print m
 
     def removeMember(self, memberToRemove):
+        print "members before removal:"
+        for m in self.members:
+                print m
         if memberToRemove in self.members:
             self.members.remove(memberToRemove)
             print "member removed"
-            print "members:"
+            print "members after removal:"
             for m in self.members:
                 print m
         else:
