@@ -26,6 +26,9 @@ class Member(object):
     def __cmp__(self, other):
         return self.socket == other.socket
 
+    def __eq__(self, other):
+        return self.socket == other.socket
+
     def __str__(self):
         return str(self.joinId) + self.name
 
