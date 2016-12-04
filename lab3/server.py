@@ -41,6 +41,7 @@ class Room(object):
         # if memberToAdd not in self.members:
         self.members.append(memberToAdd)
         print "member added"
+        print "members:"
     # else:
     #     print "member already"
         for m in self.members:
@@ -50,6 +51,9 @@ class Room(object):
         if memberToRemove in self.members:
             self.members.remove(memberToRemove)
             print "member removed"
+            print "members:"
+            for m in self.members:
+                print m
         else:
             print "not a member"
 
