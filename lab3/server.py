@@ -143,7 +143,7 @@ class ThreadedServer(object):
         ref = message[0][6:]
         joinId = message[1][9:]
         name = message[2][13:]
-        sendableMessage = message[3][8:]
+        sendableMessage = message[3][9:]
         print "name -" + name
         print "ref -" + ref
         print "join id -" + joinId
