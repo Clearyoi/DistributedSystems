@@ -24,7 +24,7 @@ class Member(object):
         return self.joinId
 
     def __cmp__(self, other):
-        return self.joinId == other.joinId
+        return self.socket == other.socket
 
     def __str__(self):
         return str(self.joinId) + self.name
@@ -187,8 +187,8 @@ class ThreadedServer(object):
 
     def join(self, inputMessage, client):
         message = inputMessage.split("\n")
-        roomName = message[0][14:]
-        clientName = message[3][12:]
+        roomName = message[0][15:]
+        clientName = message[3][13:]
         print "Room Name -" + roomName
         print "Client Name -" + clientName
         self.joinIdSeedLock.acquire()
