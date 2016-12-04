@@ -53,7 +53,7 @@ class Room(object):
                 print m
         for member in self.members:
             if member.socket == memberToRemove:
-                print "removing " + member
+                print "removing:" + str(member)
                 self.members.remove(member)
                 print "members after removal:"
                 for m in self.members:
