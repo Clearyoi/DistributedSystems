@@ -156,7 +156,7 @@ class ThreadedServer(object):
                     print "room found"
                     if Member(name, joinId, client) in x.members:
                         for m in x.members:
-                            print "message sent"
+                            print "sending message to " + str(m)
                             messageToBeSent = "CHAT:" + ref + "\nCLIENT_NAME:" +\
                                 name + "\nMESSAGE:" + sendableMessage
                             print sentMessageStart + messageToBeSent + messageEnd
