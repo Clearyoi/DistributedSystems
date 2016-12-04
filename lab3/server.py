@@ -48,6 +48,7 @@ class Room(object):
             print m
 
     def removeMember(self, memberToRemove):
+        removed = False
         print "members before removal:"
         for m in self.members:
                 print m
@@ -58,8 +59,9 @@ class Room(object):
                 print "members after removal:"
                 for m in self.members:
                     print m
-                return
-        print "Not a member"
+                removed = True
+        if not removed:
+            print "Not a member"
 
     def getName(self):
         return self.name
