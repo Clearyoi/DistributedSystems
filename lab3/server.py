@@ -140,9 +140,9 @@ class ThreadedServer(object):
 
     def chat(self, inputMessage, client):
         message = inputMessage.split("\n", 3)
-        ref = message[0][5:]
-        joinId = message[1][8:]
-        name = message[2][12:]
+        ref = message[0][6:]
+        joinId = message[1][9:]
+        name = message[2][13:]
         sendableMessage = message[3][8:]
         print "name -" + name
         print "ref -" + ref
