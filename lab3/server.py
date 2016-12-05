@@ -139,7 +139,7 @@ class ThreadedServer(object):
                     time.sleep(1)
 
     def chat(self, inputMessage, client):
-        message = inputMessage.split("\n")
+        message = inputMessage.split("\n", 3)
         ref = message[0][6:]
         joinId = message[1][9:]
         name = message[2][13:]
@@ -157,8 +157,8 @@ class ThreadedServer(object):
                     if Member(name, joinId, client) in x.members:
                         for m in x.members:
                             print "sending message to " + str(m)
-                            messageToBeSent = "CHAT:" + ref + "\nCLIENT_NAME:" +\
-                                name + "\nMESSAGE:" + sendableMessage + "\n"
+                            messageToBeSent = "CHAT: " + ref + "\nCLIENT_NAME:" +\
+                                name + "\nMESSAGE:" + sendableMessage
                             print sentMessageStart + messageToBeSent + messageEnd
                             m.socket.sendall(messageToBeSent)
                     # else:
