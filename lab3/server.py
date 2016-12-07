@@ -75,6 +75,9 @@ class Room(object):
     def __cmp__(self, other):
         return self.ref == other.ref
 
+    def __eq__(self, other):
+        return self.ref == other.ref
+
 
 class ThreadedServer(object):
     def __init__(self, host, port):
