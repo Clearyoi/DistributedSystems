@@ -173,9 +173,6 @@ class ThreadedServer(object):
         ref = message[0][16:]
         joinId = message[1][9:]
         name = message[2][13:]
-        print "ref -" + ref
-        print "id -" + joinId
-        print "name -" + name
         room = None
         self.roomsLock.acquire()
         try:
