@@ -138,6 +138,7 @@ class ThreadedServer(object):
                     self.leave(inputMessage, client)
                 elif inputMessage.startswith("CHAT:"):
                     print "chat message received"
+                    client.sendall("test\n")
                     self.chat(inputMessage, client)
                 else:
                     # print inputMessage
