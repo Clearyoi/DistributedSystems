@@ -138,7 +138,6 @@ class ThreadedServer(object):
                     self.leave(inputMessage, client)
                 elif inputMessage.startswith("CHAT:"):
                     print "chat message received"
-                    client.sendall("CHAT: 1\nCLIENT_NAME: client1\nMESSAGE: hello world from client 1\n\n")
                     self.chat(inputMessage, client)
                 else:
                     # print inputMessage
@@ -202,15 +201,12 @@ class ThreadedServer(object):
         message = inputMessage.split("\n")
         roomName = message[0][15:]
         clientName = message[3][13:]
-        print "Room Name -" + roomName
-        print "Client Name -" + clientName
         self.joinIdSeedLock.acquire()
         try:
             joinId = self.joinIdSeed
             self.joinIdSeed += 1
         finally:
             self.joinIdSeedLock.release()
-        print "member joining with id -" + str(joinId)
         member = Member(clientName, joinId, client)
         ref = 0
         room = None
