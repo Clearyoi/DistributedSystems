@@ -40,10 +40,13 @@ class Room(object):
         self.members.append(member)
         self.ref = ref
 
+    def isEmpty(self):
+        return not self.members
+
     def addMember(self, memberToAdd):
         # if memberToAdd not in self.members:
         self.members.append(memberToAdd)
-        print "member was added"
+        print "member added"
         print "members:"
     # else:
     #     print "member already"
@@ -187,6 +190,8 @@ class ThreadedServer(object):
                         print sentMessageStart + messageToBeSent + messageEnd
                         m.socket.sendall(messageToBeSent)
                     x.removeMember(client)
+                    if(x.isEmpty()):
+                        self.rooms.remove(x)
                     break
         finally:
             self.roomsLock.release()
