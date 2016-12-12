@@ -192,6 +192,7 @@ class ThreadedServer(object):
                     x.removeMember(client)
                     if(x.isEmpty()):
                         self.rooms.remove(x)
+                        print "room empty, deleting"
                     break
         finally:
             self.roomsLock.release()
@@ -240,7 +241,7 @@ class ThreadedServer(object):
             client.sendall(messageToBeSent)
             for m in room.members:
                 messageToBeSent = "CHAT:" + str(ref) + "\nCLIENT_NAME:" + clientName +\
-                    "\nMESSAGE:" + clientName + " has joined this chatroom.\n\n"
+                    "\nMESSAGE:" + clientName + " has joined this chatroom.\n"
                 print sentMessageStart + messageToBeSent + messageEnd
                 print "message sent to " + m.name
                 m.socket.sendall(messageToBeSent)
