@@ -43,7 +43,7 @@ class Room(object):
     def addMember(self, memberToAdd):
         # if memberToAdd not in self.members:
         self.members.append(memberToAdd)
-        print "member added"
+        print "member was added"
         print "members:"
     # else:
     #     print "member already"
