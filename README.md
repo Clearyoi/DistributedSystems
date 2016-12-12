@@ -4,3 +4,6 @@ Oisin Cleary
 
 Lab2 requirements:
 	Python 2.7.11
+
+Lab3 requirements:
+	Python 2.7.11
