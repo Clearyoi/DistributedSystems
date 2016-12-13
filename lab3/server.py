@@ -162,8 +162,8 @@ class ThreadedServer(object):
                     if Member(name, joinId, client) in x.members:
                         for m in x.members:
                             print "sending message to " + str(m)
-                            messageToBeSent = "CHAT: " + ref + "\nCLIENT_NAME: " +\
-                                name + "\nMESSAGE: " + sendableMessage
+                            messageToBeSent = "CHAT:" + str(ref) + "\nCLIENT_NAME:" +\
+                                name + "\nMESSAGE:" + sendableMessage
                             print sentMessageStart + messageToBeSent + messageEnd
                             m.socket.sendall(messageToBeSent)
                     # else:
