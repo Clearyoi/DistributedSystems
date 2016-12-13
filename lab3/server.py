@@ -154,22 +154,22 @@ class ThreadedServer(object):
         print "ref -" + ref
         print "join id -" + joinId
         print "message -" + sendableMessage
-        self.roomsLock.acquire()
-        try:
-            for x in self.rooms:
-                if str(x.getRef()) == ref:
-                    print "room found"
-                    if Member(name, joinId, client) in x.members:
-                        for m in x.members:
-                            print "sending message to " + str(m)
-                            messageToBeSent = "CHAT:" + str(ref) + "\nCLIENT_NAME:" +\
-                                name + "\nMESSAGE:" + sendableMessage
-                            print sentMessageStart + messageToBeSent + messageEnd
-                            m.socket.sendall(messageToBeSent)
-                    # else:
-                    #     serverError()
-        finally:
-            self.roomsLock.release()
+        # self.roomsLock.acquire()
+        # try:
+        for x in self.rooms:
+            if str(x.getRef()) == ref:
+                print "room found"
+                if Member(name, joinId, client) in x.members:
+                    for m in x.members:
+                        print "sending message to " + str(m)
+                        messageToBeSent = "CHAT:" + str(ref) + "\nCLIENT_NAME:" +\
+                            name + "\nMESSAGE:" + sendableMessage
+                        print sentMessageStart + messageToBeSent + messageEnd
+                        m.socket.sendall(messageToBeSent)
+                # else:
+                #     serverError()
+        # finally:
+        #     self.roomsLock.release()
 
     def leave(self, inputMessage, client):
         message = inputMessage.split("\n")
